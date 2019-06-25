@@ -1,0 +1,66 @@
+Installing of NFS pakage on our Server side as well as Client side :
+
+yum install nfs-utils nfs-utils-lib
+
+
+NFS Server: nfsserver IP-192.168.0.100
+NFS Client: nfsclient IP-192.168.0.101
+
+
+Setting Up the NFS Server 
+
+----SERVER Side :
+
+[root@nfsserver ~]# mkdir /nfsshare 
+
+Making a directory that will be shared with the client.
+
+[root@nfsserver ~]# vi /etc/exports
+/nfsshare 192.168.0.101(rw,sync,no_root_squash)
+
+now editing the exports file writing the directory name with client ip and giving the read and write premission ex - rw,ro etc.
+
+[root@nfsserver ~]# export -r 
+to refresh the export file
+
+[root@nfsserver ~]# chmod 757 /nfsshare
+changing the premission of shared directory 
+
+Setting Up the NFS Client
+
+----Client Side :
+
+[root@nfsclient ~]# showmount -e 192.168.0.100
+
+[root@nfsclient ~]# mkdir /mnt/nfsshare
+
+[root@nfsclient ~]# mount -t nfs 192.168.0.100:/nfsshare /mnt/nfsshare
+
+The above mount command mounted the nfs shared directory on to nfs client temporarily, 
+to mount an NFS directory permanently on your system across the reboots, we need to make an entry in “/etc/fstab“.
+
+[root@nfsclient ~]# vi /etc/fstab
+#entry in fstab
+192.168.0.100:/nfsshare /mnt  nfs defaults 0 0
+
+
+Test the Working of NFS Setup :
+
+At the nfsserver end---- 
+
+[root@nfsserver ~]# cat > /nfsshare/nfstest.txt
+
+This is a test file to test the working of NFS server setup.
+
+
+At the nfsclient end----
+
+[root@nfsclient]# ll /mnt/nfsshare
+
+root@nfsclient ~]# cat /mnt/nfsshare/nfstest.txt
+
+Removing the NFS Mount:
+
+root@nfsclient ~]# umount /mnt/nfsshare
+
+[root@nfsclient ~]# df -h -F nfs
